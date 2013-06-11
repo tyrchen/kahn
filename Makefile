@@ -3,27 +3,35 @@ DONE="\n$(CHECK) Done.\n"
 
 SERVER=jcnrd.us
 PROJECT=kahn
+PATH=deployment/$(PROJECT)
 SUPERVISORCTL=/usr/bin/supervisorctl
 SUCOPY=/bin/sucopy
+SSH=/usr/bin/ssh
+ECHO=/bin/echo
 
 deploy1:
-	@echo "\nDeploy $(PROJECT)..."
-	@ssh -t $(SERVER) "cd deployment/$(PROJECT); make deploy;"
-	@echo $(DONE)
+	@$(ECHO) "\nDeploy $(PROJECT)..."
+	@$(SSH) -t $(SERVER) "echo Deploy $(PROJECT) to the $(SERVER) server.; cd $(PATH); git pull; make deploy;"
+	@$(ECHO) "Successfully deployed to $(SERVER)"
 
-deploy:
-	@echo "\nDeploy kahn to the $(SERVER) server."
-	@echo "Retrieve latest code..."
-	git pull
-	@echo "Install nodejs dependencies..."
+dependency:
+	@$(ECHO) echo "Install project dependencies..."
 	npm install
-	@echo "Update configuration..."
+
+configuration:
+	@$(ECHO) "Update configuration..."
 	sudo $(SUCOPY) -r _deploy/etc/. /etc/.
-	@echo "Update supervisor configuration..."
+
+supervisor:
+	@$(ECHO) "Update supervisor configuration..."
 	sudo $(SUPERVISORCTL) reread
 	sudo $(SUPERVISORCTL) update
-	@echo "Restart $(PROJECT)..."
+	@$(ECHO) "Restart $(PROJECT)..."
 	sudo $(SUPERVISORCTL) restart $(PROJECT)
-	@echo "Restart nginx..."
+
+nginx:
+	@$(ECHO) "Restart nginx..."
 	sudo /etc/init.d/nginx restart
-	@echo $(DONE)
+
+deploy: dependency configuration supervisor nginx
+	@$(ECHO) $(DONE)

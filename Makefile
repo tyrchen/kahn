@@ -7,12 +7,11 @@ PATH=deployment/$(PROJECT)
 SUPERVISORCTL=/usr/bin/supervisorctl
 SUCOPY=/bin/sucopy
 SSH=/usr/bin/ssh
-ECHO=/bin/echo
+ECHO=/bin/echo -e
 NPM=/usr/local/bin/npm
 SUDO=/usr/bin/sudo
 
 deploy1:
-	@$(ECHO) "\nDeploy $(PROJECT)..."
 	@$(SSH) -t $(SERVER) "echo Deploy $(PROJECT) to the $(SERVER) server.; cd $(PATH); git pull; make deploy;"
 	@$(ECHO) "Successfully deployed to $(SERVER)"
 

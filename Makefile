@@ -15,22 +15,22 @@ remote_deploy:
 	@$(SSH) -t $(SERVER) "echo Deploy $(PROJECT) to the $(SERVER) server.; cd $(PATH); git pull; make deploy;"
 
 dependency:
-	@$(ECHO) echo "Install project dependencies..."
+	@$(ECHO) "\nInstall project dependencies..."
 	@$(NPM) install
 
 configuration:
-	@$(ECHO) "Update configuration..."
+	@$(ECHO) "\nUpdate configuration..."
 	@$(SUDO) $(SUCOPY) -r _deploy/etc/. /etc/.
 
 supervisor:
-	@$(ECHO) "Update supervisor configuration..."
+	@$(ECHO) "\nUpdate supervisor configuration..."
 	@$(SUDO) $(SUPERVISORCTL) reread
 	@$(SUDO) $(SUPERVISORCTL) update
-	@$(ECHO) "Restart $(PROJECT)..."
+	@$(ECHO) "\nRestart $(PROJECT)..."
 	@$(SUDO) $(SUPERVISORCTL) restart $(PROJECT)
 
 nginx:
-	@$(ECHO) "Restart nginx..."
+	@$(ECHO) "\nRestart nginx..."
 	@$(SUDO) /etc/init.d/nginx restart
 
 deploy: dependency configuration supervisor nginx

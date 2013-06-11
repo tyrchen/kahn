@@ -9,6 +9,7 @@ deploy1:
 deploy:
 	@echo "\nDeploy kahn to the jcnrd.us server."
 	git pull
+	npm install
 	sudo sucopy -r _deploy/etc/. /etc/.
 	sudo supervisorctl reread
 	sudo supervisorctl update

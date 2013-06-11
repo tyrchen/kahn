@@ -9,6 +9,7 @@ SUCOPY=/bin/sucopy
 SSH=/usr/bin/ssh
 ECHO=/bin/echo
 NPM=/usr/local/bin/npm
+SUDO=/usr/bin/sudo
 
 deploy1:
 	@$(ECHO) "\nDeploy $(PROJECT)..."
@@ -21,18 +22,18 @@ dependency:
 
 configuration:
 	@$(ECHO) "Update configuration..."
-	sudo $(SUCOPY) -r _deploy/etc/. /etc/.
+	$(SUDO) $(SUCOPY) -r _deploy/etc/. /etc/.
 
 supervisor:
 	@$(ECHO) "Update supervisor configuration..."
-	sudo $(SUPERVISORCTL) reread
-	sudo $(SUPERVISORCTL) update
+	$(SUDO) $(SUPERVISORCTL) reread
+	$(SUDO) $(SUPERVISORCTL) update
 	@$(ECHO) "Restart $(PROJECT)..."
-	sudo $(SUPERVISORCTL) restart $(PROJECT)
+	$(SUDO) $(SUPERVISORCTL) restart $(PROJECT)
 
 nginx:
 	@$(ECHO) "Restart nginx..."
-	sudo /etc/init.d/nginx restart
+	$(SUDO) /etc/init.d/nginx restart
 
 deploy: dependency configuration supervisor nginx
 	@$(ECHO) $(DONE)

@@ -8,7 +8,8 @@ deploy1:
 
 deploy:
 	@echo "\nDeploy kahn to the jcnrd.us server."
-	sudo sucopy -r _deploy/etc/ /etc/
+	git pull
+	sudo sucopy -r _deploy/etc/. /etc/.
 	sudo supervisorctl reread
 	sudo supervisorctl update
 	sudo supervisorctl restart kahn

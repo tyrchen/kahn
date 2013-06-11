@@ -8,6 +8,7 @@ SUPERVISORCTL=/usr/bin/supervisorctl
 SUCOPY=/bin/sucopy
 SSH=/usr/bin/ssh
 ECHO=/bin/echo
+NPM=/usr/local/bin/npm
 
 deploy1:
 	@$(ECHO) "\nDeploy $(PROJECT)..."
@@ -16,7 +17,7 @@ deploy1:
 
 dependency:
 	@$(ECHO) echo "Install project dependencies..."
-	npm install
+	$(NPM) install
 
 configuration:
 	@$(ECHO) "Update configuration..."

@@ -24,7 +24,9 @@ module.exports = (app) ->
           audit_trail: 0
           crawled: 0
 
-        issues.find {responsible: uid}, options, (err, doc) ->
+        order = level: 1
+
+        issues.find({responsible: uid}, options).sort order, (err, doc) ->
             res.send doc
 
 

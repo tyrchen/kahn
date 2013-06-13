@@ -22,6 +22,7 @@ module.exports = (app) ->
         options =
           _id: 0
           audit_trail: 0
+          crawled: 0
 
         issues.find {responsible: uid}, options, (err, doc) ->
             res.send doc

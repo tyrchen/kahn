@@ -51,7 +51,7 @@ module.exports = (app) ->
 
         order = level: 1
 
-        issues.find({responsible: uid}, options).sort order, (err, doc) ->
+        issues.find({$or: [responsible: uid, dev_owner: uid]}, options).sort order, (err, doc) ->
             res.send doc
 
 

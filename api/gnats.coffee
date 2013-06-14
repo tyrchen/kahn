@@ -42,6 +42,14 @@ module.exports = (app) ->
                 res.send
                     status: 1
 
+    app.get '/gnats/progresses/:name/recent.json', (req, res, next) ->
+        manager = req.params.name
+        query = manager: manager
+        options = limit: 7
+        order = day: -1
+        progresses.find(query, options).sort order, (err, doc) ->
+            res.send doc
+
     app.get '/gnats/progresses/:name/:day', (req, res, next) ->
         day = new Date(req.params.day.replace '.json', '')
         manager = req.params.name

@@ -1,9 +1,11 @@
 mongojs = require 'mongojs'
 _ = require 'lodash'
+moment = require 'moment'
 
 
 db = mongojs 'gnats'
 issues = db.collection 'issues'
+progresses = db.collection 'progresses'
 items_per_page = 40
 
 module.exports = (app) ->
@@ -16,7 +18,7 @@ module.exports = (app) ->
         res.send
             status: 1
 
-    app.put 'gnats/issues/:number', (req, res, next) ->
+    app.put '/gnats/issues/:number', (req, res, next) ->
         number = req.params.number.replace '.json', ''
         name = req.body.name
         value = req.body.value
@@ -27,17 +29,60 @@ module.exports = (app) ->
                 message: 'Not updated due to unrecognized field'
             return
 
-        item = issues.findOne {number: "#{number}"}, (err, doc) ->
+        issues.findOne {number: "#{number}"}, (err, doc) ->
             if not doc
                 res.send 404,
                     status: 0
                     message: 'Cannot find PR ' + number
+                return
 
             data = {}
             data[name] = value
             issues.update {number:"#{number}"}, {$set: data}, (err) ->
                 res.send
                     status: 1
+
+    app.get '/gnats/progresses/:day', (req, res, next) ->
+        day = new Date(req.params.day.replace '.json', '')
+        console.log day
+        progresses.find {day: day}, (err, doc) ->
+            res.send doc
+
+
+    app.post '/gnats/progresses/:number', (req, res, next) ->
+        number = req.params.number.replace '.json', ''
+        uid = req.body.uid
+        progress = req.body.progress
+
+
+        issues.findOne {number: "#{number}"}, (err, issue) ->
+            if not issue
+                res.send 404,
+                    status: 0
+                    message: 'Cannot find PR ' + number
+                return
+
+            today = new Date(moment(new Date()).format('YYYY-MM-DD'))
+            progresses.findOne {day: today}, (err, doc) ->
+                item = {
+                    uid: uid, number: number, title: issue.title,
+                    level: issue.level, platform: issue.platform,
+                    category: issue.category, progress: progress
+                }
+                if not doc
+                    updates = {}
+                    updates[number] = item
+                    console.log updates
+                    new_doc = {day: today, updates: updates}
+                    progresses.insert new_doc, (err) ->
+                        res.send
+                            status: 1
+                else
+                    doc.updates[number] = item
+                    progresses.update {day: today}, doc, (err) ->
+                        res.send
+                            status: 1
+
 
 
 

@@ -5,6 +5,7 @@
 	"dependencies": {
 		"restify": "",
 		"mongojs": "",
-		"lodash": ""
+		"lodash": "",
+        "moment": ""
 	}
 }

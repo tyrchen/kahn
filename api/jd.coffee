@@ -36,7 +36,9 @@ module.exports = (app) ->
 
         options = _id: 0
         employees.findOne {uid: uid}, options, (err, doc) ->
-            res.send doc
+            employees.findOne {preferred_name: doc.manager}, {uid:1}, (err, doc1) ->
+                doc['manager_uid'] = doc1.uid
+                res.send doc
 
     app.get '/directory/groups/:name', (req, res, next) ->
         uid = req.params.name.replace '.json', ''

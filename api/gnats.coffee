@@ -42,10 +42,10 @@ module.exports = (app) ->
                 res.send
                     status: 1
 
-    app.get '/gnats/progresses/:day', (req, res, next) ->
+    app.get '/gnats/progresses/:name/:day', (req, res, next) ->
         day = new Date(req.params.day.replace '.json', '')
-        console.log day
-        progresses.find {day: day}, (err, doc) ->
+        manager = req.params.name
+        progresses.find {day: day, manager: manager}, (err, doc) ->
             res.send doc
 
 
@@ -53,6 +53,7 @@ module.exports = (app) ->
         number = req.params.number.replace '.json', ''
         uid = req.body.uid
         progress = req.body.progress
+        manager = req.body.manager
 
 
         issues.findOne {number: "#{number}"}, (err, issue) ->
@@ -63,7 +64,8 @@ module.exports = (app) ->
                 return
 
             today = new Date(moment(new Date()).format('YYYY-MM-DD'))
-            progresses.findOne {day: today}, (err, doc) ->
+            query = {day: today, manager: manager}
+            progresses.findOne query, (err, doc) ->
                 item = {
                     uid: uid, number: number, title: issue.title,
                     level: issue.level, platform: issue.platform,
@@ -72,14 +74,13 @@ module.exports = (app) ->
                 if not doc
                     updates = {}
                     updates[number] = item
-                    console.log updates
-                    new_doc = {day: today, updates: updates}
+                    new_doc = {day: today, manager: manager, updates: updates}
                     progresses.insert new_doc, (err) ->
                         res.send
                             status: 1
                 else
                     doc.updates[number] = item
-                    progresses.update {day: today}, doc, (err) ->
+                    progresses.update query, doc, (err) ->
                         res.send
                             status: 1
 

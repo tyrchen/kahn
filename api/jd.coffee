@@ -47,8 +47,9 @@ module.exports = (app) ->
             members: null
         employees.findOne {uid: uid}, options, (err, doc) ->
             name = doc.preferred_name
+            order = preferred_name: 1
 
-            employees.find {manager: name}, options, (err, docs) ->
+            employees.find({manager: name}, options).sort order, (err, docs) ->
                 if docs
                     data.total = docs.length
                     if req.params.uid

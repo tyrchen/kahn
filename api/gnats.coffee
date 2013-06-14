@@ -51,7 +51,8 @@ module.exports = (app) ->
 
         order = level: 1
 
-        query = {$or: [{dev_owner:uid}, {responsible: uid}]}
+        query =
+            $and: [{$or: [{dev_owner:uid}, {responsible: uid}]}, {state: $not: /closed/}]
 
         issues.find(query, options).sort order, (err, docs) ->
             res.send docs

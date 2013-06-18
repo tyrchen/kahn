@@ -64,33 +64,37 @@ module.exports = (app) ->
         manager = req.body.manager
 
 
-        issues.findOne {number: "#{number}"}, (err, issue) ->
-            if not issue
+        issues.find {number: "#{number}"}, (err, issues) ->
+            if not issues
                 res.send 404,
                     status: 0
                     message: 'Cannot find PR ' + number
                 return
 
+            issue = issues[0]
+
             today = new Date(moment(new Date()).format('YYYY-MM-DD'))
             query = {day: today, manager: manager}
-            progresses.findOne query, (err, doc) ->
+            progresses.find query, (err, docs) ->
                 item = {
                     uid: uid, number: number, title: issue.title,
                     level: issue.level, platform: issue.platform,
                     category: issue.category, progress: progress
                 }
-                if not doc
+                if not docs
                     updates = {}
                     updates[number] = item
                     new_doc = {day: today, manager: manager, updates: updates}
                     progresses.insert new_doc, (err) ->
                         res.send
                             status: 1
-                else
-                    doc.updates[number] = item
-                    progresses.update query, doc, (err) ->
-                        res.send
-                            status: 1
+                        return
+
+                doc = docs[0]
+                doc.updates[number] = item
+                progresses.update query, doc, (err) ->
+                    res.send
+                        status: 1
 
 
 

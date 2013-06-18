@@ -35,7 +35,12 @@ module.exports = (app) ->
         uid = req.params.name.replace '.json', ''
 
         options = _id: 0
-        employees.findOne {uid: uid}, options, (err, doc) ->
+        employees.find {uid: uid}, options, (err, docs) ->
+            if not docs
+                res.send {}
+                return
+
+            doc = docs[0]
             employees.findOne {preferred_name: doc.manager}, {uid:1}, (err, doc1) ->
                 doc['manager_uid'] = doc1.uid
                 res.send doc
@@ -47,7 +52,12 @@ module.exports = (app) ->
         data =
             total: 0
             members: null
-        employees.findOne {uid: uid}, options, (err, doc) ->
+        employees.find {uid: uid}, options, (err, docs) ->
+            if not docs
+                res.send {}
+                return
+
+            doc = docs[0]
             name = doc.preferred_name
             order = preferred_name: 1
 

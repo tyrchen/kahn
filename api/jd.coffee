@@ -104,7 +104,7 @@ module.exports = (app) ->
 
         teams.find {}, options, (err, docs) ->
             if docs.length > 0
-                res.send _.uniq _.flattern(_.pluck(docs, 'members'))
+                res.send _.flattern(_.pluck(docs, 'members'))
             else
                 res.send []
 

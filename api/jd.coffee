@@ -5,7 +5,6 @@ _ = require 'lodash'
 db = mongojs 'directory'
 employees = db.collection 'employees'
 teams = db.collection 'teams'
-db_settings = db.collection 'settings'
 items_per_page = 40
 
 module.exports = (app) ->
@@ -100,12 +99,12 @@ module.exports = (app) ->
 
             res.send data
 
-    app.get '/directory/gnats-monitored-group.json', (req, res, next) ->
-        options = _id: 0
+    app.get '/directory/gnats-monitored-members.json', (req, res, next) ->
+        options = members: 1
 
-        db_settings.find {type: 'gnats-monitor-group'}, options, (err, docs) ->
-            if docs.length == 1
-                res.send docs[0].value
+        teams.find {}, options, (err, docs) ->
+            if docs.length > 0
+                res.send _.union _.pluck(docs, 'members')
             else
                 res.send []
 

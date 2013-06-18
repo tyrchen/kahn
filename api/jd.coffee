@@ -4,6 +4,7 @@ _ = require 'lodash'
 
 db = mongojs 'directory'
 employees = db.collection 'employees'
+teams = db.collection 'teams'
 db_settings = db.collection 'settings'
 items_per_page = 40
 
@@ -36,33 +37,32 @@ module.exports = (app) ->
 
         options = _id: 0
         employees.find {uid: uid}, options, (err, docs) ->
-            console.log "Docs: #{docs}"
             if docs.length <= 0
                 res.send {}
                 return
 
             doc = docs[0]
-            employees.findOne {preferred_name: doc.manager}, {uid:1}, (err, doc1) ->
-                doc['manager_uid'] = doc1.uid
+            teams.find {members: uid}, {slug:1}, (err, teams) ->
+                doc['team'] = ''
+                if teams.length > 0
+                    doc['team'] = teams[0].slug
                 res.send doc
 
-    app.get '/directory/groups/:name', (req, res, next) ->
-        uid = req.params.name.replace '.json', ''
-
-        options = _id: 0
+    app.get '/directory/teams/:slug', (req, res, next) ->
+        slug = req.params.slug.replace '.json', ''
+        options = members: 1
         data =
             total: 0
             members: null
-        employees.find {uid: uid}, options, (err, docs) ->
-            if docs <= 0
+
+        teams.find {slug: slug}, options, (err, docs) ->
+            if docs.length <= 0
                 res.send {}
                 return
 
-            doc = docs[0]
-            name = doc.preferred_name
+            members = docs[0].members
             order = preferred_name: 1
-
-            employees.find({manager: name}, options).sort order, (err, docs) ->
+            employees.find({uid: {$in: members}}).sort order, (err, docs) ->
                 if docs
                     data.total = docs.length
                     if req.params.uid
@@ -70,6 +70,16 @@ module.exports = (app) ->
                     else
                         data.members = docs
                 res.send data
+
+    app.post '/directory/teams/:slug', (req, res, next) ->
+        slug = req.params.slug.replace '.json', ''
+        name = req.body.name
+        members = _.map req.body.members.split(','), (item) ->
+            return item.trim()
+        item = {name: name, slug: slug, members: members, created_at: new Date()}
+        teams.update {slug: slug}, item, {upsert: true}, (err) ->
+            res.send
+                status: 1
 
     app.get '/directory/search.json', (req, res, next) ->
         t = req.params.term.trim()

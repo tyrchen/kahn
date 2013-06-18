@@ -43,8 +43,8 @@ module.exports = (app) ->
                     status: 1
 
     app.get '/gnats/progresses/:name/recent.json', (req, res, next) ->
-        manager = req.params.name
-        query = manager: manager
+        team = req.params.name
+        query = team: team
         options = limit: 7
         order = day: -1
         progresses.find(query, options).sort order, (err, doc) ->
@@ -52,8 +52,8 @@ module.exports = (app) ->
 
     app.get '/gnats/progresses/:name/:day', (req, res, next) ->
         day = new Date(req.params.day.replace '.json', '')
-        manager = req.params.name
-        progresses.find {day: day, manager: manager}, (err, doc) ->
+        team = req.params.name
+        progresses.find {day: day, team: team}, (err, doc) ->
             res.send doc
 
 
@@ -61,7 +61,7 @@ module.exports = (app) ->
         number = req.params.number.replace '.json', ''
         uid = req.body.uid
         progress = req.body.progress
-        manager = req.body.manager
+        team = req.body.team
 
 
         issues.find {number: "#{number}"}, (err, issues) ->
@@ -74,17 +74,17 @@ module.exports = (app) ->
             issue = issues[0]
 
             today = new Date(moment(new Date()).format('YYYY-MM-DD'))
-            query = {day: today, manager: manager}
+            query = {day: today, team: team}
             progresses.find query, (err, docs) ->
                 item = {
                     uid: uid, number: number, title: issue.title,
                     level: issue.level, platform: issue.platform,
                     category: issue.category, progress: progress
                 }
-                if docs <= 0
+                if docs.length <= 0
                     updates = {}
                     updates[number] = item
-                    new_doc = {day: today, manager: manager, updates: updates}
+                    new_doc = {day: today, team: team, updates: updates}
                     progresses.insert new_doc, (err) ->
                         res.send
                             status: 1

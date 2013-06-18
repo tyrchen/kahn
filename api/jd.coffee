@@ -36,7 +36,8 @@ module.exports = (app) ->
 
         options = _id: 0
         employees.find {uid: uid}, options, (err, docs) ->
-            if not docs
+            console.log "Docs: #{docs}"
+            if docs.length <= 0
                 res.send {}
                 return
 
@@ -53,7 +54,7 @@ module.exports = (app) ->
             total: 0
             members: null
         employees.find {uid: uid}, options, (err, docs) ->
-            if not docs
+            if docs <= 0
                 res.send {}
                 return
 

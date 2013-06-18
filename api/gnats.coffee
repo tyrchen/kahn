@@ -65,7 +65,7 @@ module.exports = (app) ->
 
 
         issues.find {number: "#{number}"}, (err, issues) ->
-            if not issues
+            if issues.length <= 0
                 res.send 404,
                     status: 0
                     message: 'Cannot find PR ' + number
@@ -81,7 +81,7 @@ module.exports = (app) ->
                     level: issue.level, platform: issue.platform,
                     category: issue.category, progress: progress
                 }
-                if not docs
+                if docs <= 0
                     updates = {}
                     updates[number] = item
                     new_doc = {day: today, manager: manager, updates: updates}
@@ -92,7 +92,7 @@ module.exports = (app) ->
 
                 doc = docs[0]
                 doc.updates[number] = item
-                progresses.update query, doc, (err) ->
+                progress    es.update query, doc, (err) ->
                     res.send
                         status: 1
 

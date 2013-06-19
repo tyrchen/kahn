@@ -92,7 +92,7 @@ module.exports = (app) ->
 
                 doc = docs[0]
                 doc.updates[number] = item
-                progress    es.update query, doc, (err) ->
+                progresses.update query, doc, (err) ->
                     res.send
                         status: 1
 

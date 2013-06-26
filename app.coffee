@@ -15,4 +15,4 @@ app.get '/', (req, res, next) ->
 
 
 app.listen 6080, ->
-    console.log 'ready on %s', app.url
+    console.log 'ready on %s!', app.url

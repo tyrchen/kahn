@@ -10,8 +10,8 @@ items_per_page = 40
 
 module.exports = (app) ->
     app.get '/gnats.json', (req, res, next) ->
-          res.send
-                status: 1
+        res.send
+            status: 1
 
     app.get '/gnats/groups/:name', (req, res, next) ->
         # not implemented
@@ -103,14 +103,18 @@ module.exports = (app) ->
         uid = req.params.name.replace '.json', ''
 
         options =
-          _id: 0
-          audit_trail: 0
-          crawled: 0
+            _id: 0
+            audit_trail: 0
+            crawled: 0
 
         order = level: 1
 
-        query =
-            $and: [{$or: [{dev_owner:uid}, {responsible: uid}, {worker: uid}]}, {state: $not: /closed/}]
+        condition = $or: [{dev_owner:uid}, {responsible: uid}, {worker: uid}]
+
+        if req.params.all
+            query = condition
+        else
+            query = $and: [condition, {state: $not: /closed/}]
 
         issues.find(query, options).sort order, (err, docs) ->
             res.send docs

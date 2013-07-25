@@ -113,6 +113,9 @@ module.exports = (app) ->
 
         if req.params.all
             query = condition
+            options =
+                state: 1
+                level: 1
         else
             query = $and: [condition, {state: $not: /closed/}]
 

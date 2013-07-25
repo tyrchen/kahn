@@ -3,6 +3,8 @@ restify = require 'restify'
 app = restify.createServer()
 
 app.use restify.acceptParser(app.acceptable)
+app.use restify.CORS()
+app.use restify.fullResponse()
 app.use restify.queryParser()
 app.use restify.bodyParser()
 # app.use restify.jsonp()

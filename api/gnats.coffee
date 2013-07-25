@@ -114,6 +114,7 @@ module.exports = (app) ->
         if req.params.all
             query = condition
             options =
+                _id: 0
                 state: 1
                 level: 1
         else

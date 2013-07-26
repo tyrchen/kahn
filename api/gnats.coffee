@@ -6,7 +6,12 @@ moment = require 'moment'
 db = mongojs 'gnats'
 issues = db.collection 'issues'
 progresses = db.collection 'progresses'
+
+db1 = mongojs 'directory'
+teams = db1.collection 'teams'
+
 items_per_page = 40
+
 
 module.exports = (app) ->
     app.get '/gnats.json', (req, res, next) ->
@@ -111,17 +116,37 @@ module.exports = (app) ->
 
         condition = $or: [{dev_owner:uid}, {responsible: uid}, {worker: uid}]
 
-        if req.params.all
-            query = condition
+        query = $and: [condition, {state: $not: /closed/}]
+
+        issues.find(query, options).sort order, (err, docs) ->
+            res.send docs
+
+
+    app.get '/gnats/stats/:t/:slug', (req, res, next) ->
+        slug = req.params.slug.replace '.json', ''
+        t = req.params.t
+
+        fun = (q) ->
             options =
                 _id: 0
                 state: 1
                 level: 1
-        else
-            query = $and: [condition, {state: $not: /closed/}]
+                arrived_at: 1
+                modified_at: 1
 
-        issues.find(query, options).sort order, (err, docs) ->
-            res.send docs
+            issues.find query, options, (err1, docs) ->
+                res.send docs
+
+        if t == 'u'
+            query = $or: [{dev_owner: slug}, {responsible: slug}, {worker: slug}]
+            fun query
+        else
+            teams.findOne {slug: slug}, {_id: 0, members: 1}, (err, doc) ->
+                members = doc.members
+
+                query = $or: [{dev_owner: $in: members}, {responsible: $in: members}, {worker: $in: members}]
+                fun query
+
 
 
 
